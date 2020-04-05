@@ -1,0 +1,100 @@
+---
+title: "U.S. Coronavirus Data App"
+author: "Farid Tayari"
+date: "4/4/2020"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## U.S. Coronavirus Data App
+
+This app extracts the most recent U.S. coronavirus data from the [NYTimes Github](https://github.com/nytimes/covid-19-data) and displays it at the country, state, and county level according to the user preference. 
+
+The information about the last update, total number of cases, deaths, and the link to the NYTimes Github are shown on the first page below the title.
+
+More details information can be found on [github](https://github.com/faridtayari/-Developing-Data-Products).
+
+
+## U.S. coronavirus  
+
+```{r cars, echo = FALSE, message=FALSE}
+library(shiny)
+library(dplyr)
+
+# read the data from NY Times Github
+# https://github.com/nytimes/covid-19-data
+
+urlfile_state<-"https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv"
+corona_data_state<<-read.csv(urlfile_state)
+urlfile_county<-"https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"
+corona_data_county<<-read.csv(urlfile_county)
+
+state_names<<-levels(factor(corona_data_state$state))
+corona_data_state$date<-as.Date(corona_data_state$date)
+corona_data_state_US<<-group_by(corona_data_state,date)
+corona_data_state_US1<<-as.data.frame(summarise(corona_data_state_US,sum(cases,na.rm = TRUE)))
+names(corona_data_state_US1)[dim(corona_data_state_US1)[2]]<-"cases"
+corona_data_state_US2<<-as.data.frame(summarise(corona_data_state_US,sum(deaths,na.rm = TRUE)))
+names(corona_data_state_US2)[dim(corona_data_state_US2)[2]]<-"deaths"
+corona_data_state_US<<-merge(corona_data_state_US1,corona_data_state_US2)
+
+corona_case <- corona_data_state_US$cases
+
+corona_death <- corona_data_state_US$deaths
+corona_date <- as.Date(corona_data_state_US$date)
+
+plot(corona_date,corona_case, ylim= range(corona_case), xlab='', ylab='',main= "United States", type = "l", col="blue")
+par(new=TRUE)
+plot(corona_date,corona_death, ylim= range(corona_case), xlab='', ylab='',main= "", type = "l", col="red")
+legend("topleft",legend= c("Cases","Deaths"), col=c("blue","red"),lty=1)
+
+```
+
+
+## U.S. Coronavirus Data App
+- First, U.S. coronavirus data is plotted. 
+- Then, state level data is displayed in table and plot formats.
+- User can also choose to see the county level data.
+- App is accessible on [shinyapps](https://faridtayari.shinyapps.io/FT_App/)
+
+
+## Coronavirus Data
+
+
+
+Coronavirus data data includes: 
+
+- Date
+- County
+- State 
+- Diagnosed cases
+- Deaths
+
+
+
+## Plotting the data by the state
+
+- User can choose a State from the list
+- Data in the form of timeseries is plotted in the graph
+- Data includes diagnosed cases and deaths
+
+
+## Displaying the data in the table
+
+- User can choose a State from the list
+- User can choose to see county level data within the selected state 
+
+- The reactive functionality will create a new list that includes only the counties that exist within the selected state in the previous step
+- A table is created that includes timeseries of diagnosed cases and deaths only for the selected state and the counties within that state
+
+
+## Displaying the data
+
+![](D:/Coursera/Data Science/09 Developing Data Products/R Directory/Final_Project/FT_App/Figures/Figure 2.jpg)
+
+## Displaying the data in the table
+
+![](D:/Coursera/Data Science/09 Developing Data Products/R Directory/Final_Project/FT_App/Figures/Figure 3.jpg)
